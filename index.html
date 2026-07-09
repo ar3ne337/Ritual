@@ -320,6 +320,7 @@
       max-width: 400px;
       line-height: 2;
       min-height: 3em;
+      word-break: break-word;
     }
     .hero-desc .cursor-blink {
       display: inline-block;
@@ -329,6 +330,10 @@
       margin-left: 2px;
       vertical-align: text-bottom;
       animation: blink 0.8s step-end infinite;
+      box-shadow: 0 0 8px var(--red), 0 0 16px var(--red-dim);
+    }
+    .hero-desc .cursor-blink.hidden {
+      display: none;
     }
     @keyframes blink {
       0%,100% { opacity: 1; }
@@ -1376,8 +1381,6 @@ Our roots entwined with hers, unyielding, condemned.</div>
       <div class="hero-center" id="hero-center">
         <div class="hero-name" id="hero-name">Ritu<span class="italic">al</span></div>
         <p class="hero-desc" id="hero-desc">
-          a corner of the internet that belongs to me.<br>
-          no agenda. just things i make, think, and see.
           <span class="cursor-blink"></span>
         </p>
         <span class="hero-side-label">Designer &amp; Creative</span>
@@ -1907,6 +1910,33 @@ Our roots entwined with hers, unyielding, condemned.</div>
         cardScene.classList.remove('hover-flipped');
       }
     });
+
+    // ── TYPEWRITER EFFECT ──
+    const heroDesc = document.getElementById('hero-desc');
+    const fullText = "a corner of the internet that belongs to me.\nno agenda. just things i make, think, and see.";
+    let charIndex = 0;
+    let typedHTML = "";
+
+    function typeNextChar() {
+      if (charIndex < fullText.length) {
+        const char = fullText[charIndex];
+        if (char === '\n') {
+          typedHTML += '<br>';
+        } else {
+          typedHTML += char;
+        }
+        charIndex++;
+        heroDesc.innerHTML = typedHTML + ' <span class="cursor-blink"></span>';
+        setTimeout(typeNextChar, 25);
+      } else {
+        // Typing complete — remove the cursor
+        const cursor = heroDesc.querySelector('.cursor-blink');
+        if (cursor) cursor.classList.add('hidden');
+      }
+    }
+
+    // Start typing after a short delay (let the fadeUp animation play first)
+    setTimeout(typeNextChar, 800);
   </script>
 </body>
 </html>
