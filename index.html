@@ -16,6 +16,7 @@
       --bg3:      #000000;
       --red:      #ff0000;
       --red-dim:  #990000;
+      --red-glow: rgba(255,0,0,0.25);
       --white:    #ffffff;
       --gray1:    #888888;
       --gray2:    #444444;
@@ -26,13 +27,10 @@
 
     html {
       scroll-behavior: smooth;
-      /* Hide scrollbar completely while keeping scrolling */
-      scrollbar-width: none;          /* Firefox */
-      -ms-overflow-style: none;      /* IE/Edge */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
-    html::-webkit-scrollbar {
-      display: none;                 /* Chrome/Safari/WebKit */
-    }
+    html::-webkit-scrollbar { display: none; }
 
     body {
       background: var(--bg);
@@ -40,9 +38,50 @@
       font-family: var(--serif);
       min-height: 100vh;
       overflow-x: hidden;
-      cursor: crosshair;             /* ── CROSSHAIR CURSOR ── */
+      cursor: crosshair;
     }
     body.overlay-open { overflow: hidden; }
+
+    /* ── SCROLL PROGRESS BAR ── */
+    #scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--red), var(--red-dim));
+      z-index: 10000;
+      width: 0%;
+      transition: width 0.08s linear;
+      box-shadow: 0 0 12px var(--red-glow);
+    }
+
+    /* ── CUSTOM CURSOR GLOW ── */
+    #cursor-glow {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9997;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,0,0,0.12) 0%, rgba(255,0,0,0.04) 50%, transparent 70%);
+      transform: translate(-50%, -50%);
+      transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+      mix-blend-mode: screen;
+      will-change: transform;
+    }
+    #cursor-glow.hover {
+      width: 120px;
+      height: 120px;
+      opacity: 0.8;
+    }
+
+    /* ── PARTICLE CANVAS ── */
+    #particle-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
 
     body::after {
       content:'';
@@ -142,6 +181,39 @@
     .lightbox-prev { left: -4rem; }
     .lightbox-next { right: -4rem; }
 
+    /* ── BACK TO TOP ── */
+    #back-to-top {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 5000;
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--gray3);
+      background: var(--bg);
+      color: var(--gray1);
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+    #back-to-top.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+    #back-to-top:hover {
+      border-color: var(--red);
+      color: var(--red);
+      box-shadow: 0 0 20px var(--red-glow);
+    }
+
     /* ── SIDEBAR ── */
     .sidebar {
       position: fixed;
@@ -204,6 +276,7 @@
       grid-template-rows: auto 1fr auto;
       position: relative;
       border-bottom: 1px solid var(--gray3);
+      perspective: 800px;
     }
     .hero-top {
       padding: 2rem 3.5rem 1rem;
@@ -221,6 +294,7 @@
       flex-direction: column;
       padding: 3rem 3.5rem;
       position: relative;
+      transform-style: preserve-3d;
     }
     .hero-name {
       font-family: var(--serif);
@@ -231,6 +305,8 @@
       color: var(--white);
       text-align: center;
       animation: fadeUp 1s ease both;
+      transition: transform 0.1s ease-out;
+      will-change: transform;
     }
     .hero-name .italic { font-style: italic; color: var(--red); }
     .hero-desc {
@@ -243,6 +319,20 @@
       animation: fadeUp 1s 0.2s ease both;
       max-width: 400px;
       line-height: 2;
+      min-height: 3em;
+    }
+    .hero-desc .cursor-blink {
+      display: inline-block;
+      width: 1px;
+      height: 0.9em;
+      background: var(--red);
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: blink 0.8s step-end infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity: 1; }
+      50%     { opacity: 0; }
     }
     .hero-side-label {
       position: absolute;
@@ -354,6 +444,8 @@
       align-items: center;
       justify-content: center;
       cursor: zoom-in;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      will-change: transform;
     }
     .gallery-cell:nth-child(4n) { border-right: none; }
     .gallery-cell:nth-child(n+5) { border-bottom: none; }
@@ -416,7 +508,8 @@
       gap: 2.5rem;
     }
     .thoughts-sidebar .panel-label { margin-bottom: 0.5rem; }
-    .thought-item { border-top: 1px solid var(--gray3); padding-top: 1.2rem; cursor: pointer; }
+    .thought-item { border-top: 1px solid var(--gray3); padding-top: 1.2rem; cursor: pointer; transition: padding-left 0.2s; }
+    .thought-item:hover { padding-left: 0.5rem; }
     .thought-date { font-family: var(--mono); font-size: 0.52rem; color: var(--red); letter-spacing: 0.1em; margin-bottom: 0.5rem; }
     .thought-title { font-family: var(--serif); font-size: 1rem; color: var(--white); line-height: 1.4; transition: color 0.2s; }
     .thought-item:hover .thought-title { color: var(--red); }
@@ -452,11 +545,20 @@
       display: flex;
       flex-direction: column;
       gap: 0.8rem;
-      transition: background 0.3s;
+      transition: background 0.3s, transform 0.3s ease, box-shadow 0.3s ease;
+      will-change: transform;
     }
     .interest-cell:last-child { border-right: none; }
     .interest-cell:hover { background: var(--bg2); }
-    .interest-num { font-family: var(--mono); font-size: 0.5rem; color: var(--red); letter-spacing: 0.2em; }
+    .interest-num {
+      font-family: var(--mono);
+      font-size: 0.5rem;
+      color: var(--red);
+      letter-spacing: 0.2em;
+      transition: transform 0.3s ease;
+      display: inline-block;
+    }
+    .interest-cell:hover .interest-num { transform: translateX(4px); }
     .interest-name { font-family: var(--serif); font-size: 1.2rem; font-style: italic; color: var(--white); line-height: 1.2; }
     .interest-desc { font-family: var(--mono); font-size: 0.55rem; color: var(--gray2); letter-spacing: 0.08em; line-height: 1.8; }
     #music-interest, #writing-interest, #design-interest, #card-interest { cursor: pointer; }
@@ -487,7 +589,7 @@
     .footer-links a:hover { color: var(--white); }
     .footer-right { font-family: var(--mono); font-size: 0.55rem; color: var(--gray2); letter-spacing: 0.1em; }
 
-    /* ── MUSIC PLAYER OVERLAY (COMPACT) ── */
+    /* ── MUSIC PLAYER OVERLAY ── */
     .music-player-overlay {
       position: fixed;
       z-index: 8100;
@@ -611,7 +713,6 @@
     .player-btn:hover { color: var(--red); }
     .play-btn { font-size: 1.3rem; }
     .volume-btn { position: relative; }
-
     .volume-slider-popup {
       display: none;
       position: absolute;
@@ -887,7 +988,7 @@
       100%{transform:translate(0,0);clip-path:inset(0 0 0 0);}
     }
 
-    /* ── BUSINESS CARD OVERLAY (hover + click) ── */
+    /* ── BUSINESS CARD OVERLAY ── */
     .card-overlay {
       position: fixed;
       inset: 0;
@@ -903,13 +1004,11 @@
       perspective: 1000px;
     }
     .card-overlay.active { opacity: 1; pointer-events: all; }
-
     .card-scene {
       width: 380px;
       height: 220px;
       position: relative;
     }
-
     .card-flip {
       width: 100%;
       height: 100%;
@@ -918,13 +1017,10 @@
       transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
       cursor: pointer;
     }
-
-    /* Permanent flip (click) and temporary hover flip */
     .card-scene.flipped .card-flip,
     .card-scene.hover-flipped .card-flip {
       transform: rotateY(180deg);
     }
-
     .card-face {
       position: absolute;
       width: 100%;
@@ -937,13 +1033,11 @@
       justify-content: center;
       overflow: hidden;
     }
-
     .card-front {
       background: #000000;
       color: #ffffff;
       font-family: 'EB Garamond', Georgia, serif;
     }
-
     .front-accent {
       position: absolute;
       top: 0;
@@ -952,7 +1046,6 @@
       height: 4px;
       background: #ff0000;
     }
-
     .front-text {
       font-size: 4.5rem;
       font-weight: 400;
@@ -963,12 +1056,10 @@
       position: relative;
       z-index: 1;
     }
-
     .front-text .red-part {
       color: #ff0000;
       font-style: normal;
     }
-
     .front-sub {
       font-family: 'Space Mono', monospace;
       font-size: 0.55rem;
@@ -979,7 +1070,6 @@
       position: relative;
       z-index: 1;
     }
-
     .front-corner {
       position: absolute;
       width: 24px;
@@ -989,19 +1079,8 @@
       pointer-events: none;
       z-index: 0;
     }
-
-    .corner-tl {
-      top: 12px;
-      left: 12px;
-      border-width: 2px 0 0 2px;
-    }
-
-    .corner-br {
-      bottom: 12px;
-      right: 12px;
-      border-width: 0 2px 2px 0;
-    }
-
+    .corner-tl { top: 12px; left: 12px; border-width: 2px 0 0 2px; }
+    .corner-br { bottom: 12px; right: 12px; border-width: 0 2px 2px 0; }
     .card-back {
       background: #000000;
       color: #ffffff;
@@ -1011,7 +1090,6 @@
       justify-content: space-between;
       align-items: stretch;
     }
-
     .back-name {
       font-family: 'EB Garamond', Georgia, serif;
       font-size: 1.8rem;
@@ -1019,12 +1097,10 @@
       letter-spacing: -0.01em;
       margin-bottom: 0.3rem;
     }
-
     .back-name .red-dot {
       color: #ff0000;
       font-style: normal;
     }
-
     .back-title {
       font-size: 0.6rem;
       color: #ff0000;
@@ -1032,7 +1108,6 @@
       text-transform: uppercase;
       margin-bottom: 1.2rem;
     }
-
     .back-details {
       display: flex;
       flex-direction: column;
@@ -1041,27 +1116,23 @@
       color: #aaaaaa;
       letter-spacing: 0.1em;
     }
-
     .detail-row {
       display: flex;
       align-items: center;
       gap: 0.6rem;
     }
-
     .detail-icon {
       width: 16px;
       text-align: center;
       color: #ff0000;
       font-size: 0.65rem;
     }
-
     .back-line {
       width: 100%;
       height: 1px;
       background: #222222;
       margin: 0.8rem 0;
     }
-
     .back-footer {
       display: flex;
       justify-content: space-between;
@@ -1070,14 +1141,12 @@
       color: #666666;
       letter-spacing: 0.15em;
     }
-
     .back-website {
       color: #ffffff;
       text-decoration: none;
       transition: color 0.2s;
     }
     .back-website:hover { color: #ff0000; }
-
     .card-close {
       position: absolute;
       top: -2.5rem;
@@ -1097,6 +1166,26 @@
       z-index: 10;
     }
     .card-close:hover { color: var(--red); }
+
+    /* ── RIPPLE ── */
+    .ripple-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9996;
+      overflow: hidden;
+    }
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(255,0,0,0.25);
+      animation: rippleAnim 0.8s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes rippleAnim {
+      0%   { transform: scale(0); opacity: 0.8; }
+      100% { transform: scale(4); opacity: 0; }
+    }
 
     @keyframes fadeUp {
       from { opacity:0; transform:translateY(20px); }
@@ -1125,20 +1214,26 @@
       .poem-card { padding: 2rem; max-width: 95%; }
       .glitch-card { padding: 2rem 1.2rem; }
       .glitch-ritual { font-size: clamp(2.8rem, 18vw, 5rem); }
-      .card-scene {
-        width: 300px;
-        height: 175px;
-      }
-      .front-text {
-        font-size: 3.2rem;
-      }
-      .back-name {
-        font-size: 1.4rem;
-      }
+      .card-scene { width: 300px; height: 175px; }
+      .front-text { font-size: 3.2rem; }
+      .back-name { font-size: 1.4rem; }
+      #cursor-glow { display: none; }
     }
   </style>
 </head>
 <body>
+
+  <!-- SCROLL PROGRESS -->
+  <div id="scroll-progress"></div>
+
+  <!-- CURSOR GLOW -->
+  <div id="cursor-glow"></div>
+
+  <!-- RIPPLE CONTAINER -->
+  <div class="ripple-container" id="ripple-container"></div>
+
+  <!-- PARTICLE CANVAS -->
+  <canvas id="particle-canvas"></canvas>
 
   <!-- LIGHTBOX -->
   <div class="lightbox" id="lightbox">
@@ -1213,12 +1308,11 @@ Our roots entwined with hers, unyielding, condemned.</div>
     </div>
   </div>
 
-  <!-- BUSINESS CARD OVERLAY (hover + click) -->
+  <!-- BUSINESS CARD OVERLAY -->
   <div class="card-overlay" id="card-overlay">
     <button class="card-close" id="card-close-btn">✕ &nbsp;Close</button>
     <div class="card-scene" id="card-scene">
       <div class="card-flip">
-        <!-- FRONT -->
         <div class="card-face card-front">
           <div class="front-accent"></div>
           <div class="front-corner corner-tl"></div>
@@ -1226,7 +1320,6 @@ Our roots entwined with hers, unyielding, condemned.</div>
           <span class="front-text">Ritu<span class="red-part">al</span></span>
           <span class="front-sub">creative</span>
         </div>
-        <!-- BACK -->
         <div class="card-face card-back">
           <div>
             <div class="back-name">Ritu<span class="red-dot">al</span></div>
@@ -1256,6 +1349,11 @@ Our roots entwined with hers, unyielding, condemned.</div>
     </div>
   </div>
 
+  <!-- BACK TO TOP -->
+  <button id="back-to-top" aria-label="Back to top">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <a href="#" class="sidebar-logo">RIT<em>U</em>AL</a>
@@ -1275,11 +1373,12 @@ Our roots entwined with hers, unyielding, condemned.</div>
         <span class="hero-date">Est. ∞ &nbsp;/&nbsp; Updated whenever</span>
         <span class="hero-tag">Personal Space</span>
       </div>
-      <div class="hero-center">
-        <div class="hero-name">Ritu<span class="italic">al</span></div>
-        <p class="hero-desc">
+      <div class="hero-center" id="hero-center">
+        <div class="hero-name" id="hero-name">Ritu<span class="italic">al</span></div>
+        <p class="hero-desc" id="hero-desc">
           a corner of the internet that belongs to me.<br>
           no agenda. just things i make, think, and see.
+          <span class="cursor-blink"></span>
         </p>
         <span class="hero-side-label">Designer &amp; Creative</span>
       </div>
@@ -1315,37 +1414,37 @@ Our roots entwined with hers, unyielding, condemned.</div>
         <span class="gallery-header-title">Things I've seen &amp; shot</span>
       </div>
       <div class="gallery-grid">
-        <div class="gallery-cell wide clickable-img" data-src="https://picsum.photos/seed/ritual-1/1600/900" data-caption="01 — Urban geometry">
+        <div class="gallery-cell wide clickable-img tilt-card" data-src="https://picsum.photos/seed/ritual-1/1600/900" data-caption="01 — Urban geometry">
           <div class="cell-num">01</div>
           <img src="https://picsum.photos/seed/ritual-1/900/500" alt="Urban geometry"/>
           <div class="cell-overlay"></div>
           <div class="cell-zoom-hint">↗ View</div>
         </div>
-        <div class="gallery-cell clickable-img" data-src="https://picsum.photos/seed/ritual-2/1200/900" data-caption="02 — Still water">
+        <div class="gallery-cell clickable-img tilt-card" data-src="https://picsum.photos/seed/ritual-2/1200/900" data-caption="02 — Still water">
           <div class="cell-num">02</div>
           <img src="https://picsum.photos/seed/ritual-2/600/500" alt="Still water"/>
           <div class="cell-overlay"></div>
           <div class="cell-zoom-hint">↗ View</div>
         </div>
-        <div class="gallery-cell clickable-img" data-src="https://picsum.photos/seed/ritual-3/1200/900" data-caption="03 — Light through glass">
+        <div class="gallery-cell clickable-img tilt-card" data-src="https://picsum.photos/seed/ritual-3/1200/900" data-caption="03 — Light through glass">
           <div class="cell-num">03</div>
           <img src="https://picsum.photos/seed/ritual-3/600/500" alt="Light through glass"/>
           <div class="cell-overlay"></div>
           <div class="cell-zoom-hint">↗ View</div>
         </div>
-        <div class="gallery-cell clickable-img" data-src="https://picsum.photos/seed/ritual-4/1200/900" data-caption="04 — Open road">
+        <div class="gallery-cell clickable-img tilt-card" data-src="https://picsum.photos/seed/ritual-4/1200/900" data-caption="04 — Open road">
           <div class="cell-num">04</div>
           <img src="https://picsum.photos/seed/ritual-4/600/500" alt="Open road"/>
           <div class="cell-overlay"></div>
           <div class="cell-zoom-hint">↗ View</div>
         </div>
-        <div class="gallery-cell clickable-img" data-src="https://picsum.photos/seed/ritual-5/1200/900" data-caption="05 — City at night">
+        <div class="gallery-cell clickable-img tilt-card" data-src="https://picsum.photos/seed/ritual-5/1200/900" data-caption="05 — City at night">
           <div class="cell-num">05</div>
           <img src="https://picsum.photos/seed/ritual-5/600/500" alt="City at night"/>
           <div class="cell-overlay"></div>
           <div class="cell-zoom-hint">↗ View</div>
         </div>
-        <div class="gallery-cell wide clickable-img" data-src="https://picsum.photos/seed/ritual-6/1800/900" data-caption="06 — Open landscape">
+        <div class="gallery-cell wide clickable-img tilt-card" data-src="https://picsum.photos/seed/ritual-6/1800/900" data-caption="06 — Open landscape">
           <div class="cell-num">06</div>
           <img src="https://picsum.photos/seed/ritual-6/1200/500" alt="Open landscape"/>
           <div class="cell-overlay"></div>
@@ -1373,27 +1472,27 @@ Our roots entwined with hers, unyielding, condemned.</div>
 
     <!-- INTERESTS -->
     <section id="interests">
-      <div class="interest-cell">
+      <div class="interest-cell tilt-card">
         <div class="interest-num">01</div>
         <div class="interest-name">Photography</div>
         <div class="interest-desc">Film mostly. 35mm. The grain matters.</div>
       </div>
-      <div class="interest-cell" id="design-interest">
+      <div class="interest-cell tilt-card" id="design-interest">
         <div class="interest-num">02</div>
         <div class="interest-name">Design</div>
         <div class="interest-desc">Visual systems, type, and things that just feel right.</div>
       </div>
-      <div class="interest-cell" id="music-interest">
+      <div class="interest-cell tilt-card" id="music-interest">
         <div class="interest-num">03</div>
         <div class="interest-name">Music</div>
         <div class="interest-desc">Whatever sounds good at 2am.</div>
       </div>
-      <div class="interest-cell" id="card-interest">
+      <div class="interest-cell tilt-card" id="card-interest">
         <div class="interest-num">04</div>
         <div class="interest-name">Card</div>
         <div class="interest-desc">Business card — hover & click to flip.</div>
       </div>
-      <div class="interest-cell" id="writing-interest">
+      <div class="interest-cell tilt-card" id="writing-interest">
         <div class="interest-num">05</div>
         <div class="interest-name">Writing</div>
         <div class="interest-desc">Short notes. Observations. Nothing finished.</div>
@@ -1403,7 +1502,6 @@ Our roots entwined with hers, unyielding, condemned.</div>
     <!-- FOOTER -->
     <footer>
       <div class="footer-left">
-        <!-- EASTER EGG: click 7 times to reach Emilijus ♡ Rustina -->
         <a href="Easteregg1.html" class="footer-name" id="easter-egg-link">Ritu<em>al</em></a>
         <ul class="footer-links">
           <li><a href="#">Instagram</a></li>
@@ -1418,6 +1516,159 @@ Our roots entwined with hers, unyielding, condemned.</div>
   </main>
 
   <script>
+    // ── CURSOR GLOW ──
+    const cursorGlow = document.getElementById('cursor-glow');
+    let mouseX = -200, mouseY = -200;
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      cursorGlow.style.left = mouseX + 'px';
+      cursorGlow.style.top = mouseY + 'px';
+    });
+
+    // Enlarge glow on hoverable elements
+    const hoverTargets = document.querySelectorAll('a, button, .clickable-img, .interest-cell, .thought-item, .gallery-cell, .tilt-card, .read-more, .btn-primary');
+    hoverTargets.forEach(el => {
+      el.addEventListener('mouseenter', () => cursorGlow.classList.add('hover'));
+      el.addEventListener('mouseleave', () => cursorGlow.classList.remove('hover'));
+    });
+
+    // ── SCROLL PROGRESS ──
+    const scrollProgress = document.getElementById('scroll-progress');
+    window.addEventListener('scroll', () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      scrollProgress.style.width = progress + '%';
+    });
+
+    // ── BACK TO TOP ──
+    const backToTop = document.getElementById('back-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 400) {
+        backToTop.classList.add('visible');
+      } else {
+        backToTop.classList.remove('visible');
+      }
+    });
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // ── RIPPLE EFFECT ──
+    const rippleContainer = document.getElementById('ripple-container');
+    document.addEventListener('click', (e) => {
+      const ripple = document.createElement('div');
+      ripple.className = 'ripple';
+      const size = 40 + Math.random() * 60;
+      ripple.style.width = size + 'px';
+      ripple.style.height = size + 'px';
+      ripple.style.left = (e.clientX - size/2) + 'px';
+      ripple.style.top = (e.clientY - size/2) + 'px';
+      rippleContainer.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 800);
+    });
+
+    // ── PARTICLE SYSTEM ──
+    const pCanvas = document.getElementById('particle-canvas');
+    const pCtx = pCanvas.getContext('2d');
+    let pW, pH, particles = [];
+
+    function resizeParticles() {
+      pW = pCanvas.width = window.innerWidth;
+      pH = pCanvas.height = window.innerHeight;
+    }
+    resizeParticles();
+    window.addEventListener('resize', resizeParticles);
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * pW;
+        this.y = Math.random() * pH;
+        this.r = Math.random() * 2 + 0.5;
+        this.vx = (Math.random() - 0.5) * 0.3;
+        this.vy = (Math.random() - 0.5) * 0.3 - 0.1;
+        this.life = 0.3 + Math.random() * 0.4;
+        this.maxLife = this.life;
+        this.hue = Math.random() < 0.6 ? 0 : 10 + Math.random() * 15;
+        this.sat = 80 + Math.random() * 20;
+        this.lit = 40 + Math.random() * 30;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= 0.002;
+        if (this.life <= 0 || this.x < -10 || this.x > pW + 10 || this.y < -10 || this.y > pH + 10) {
+          this.reset();
+          this.x = Math.random() * pW;
+          this.y = pH + 10;
+          this.life = this.maxLife;
+        }
+        // mouse attraction
+        const dx = mouseX - this.x;
+        const dy = mouseY - this.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 150 && dist > 0) {
+          const force = 0.02;
+          this.vx += dx / dist * force * 0.3;
+          this.vy += dy / dist * force * 0.3;
+        }
+        // dampen
+        this.vx *= 0.998;
+        this.vy *= 0.998;
+      }
+      draw(ctx) {
+        const alpha = this.life / this.maxLife * 0.4;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = `hsl(0, 100%, 50%)`;
+        ctx.fillStyle = `hsl(${this.hue}, ${this.sat}%, ${this.lit}%)`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r * (0.5 + 0.5 * (this.life / this.maxLife)), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+    function animateParticles() {
+      pCtx.clearRect(0, 0, pW, pH);
+      particles.forEach(p => { p.update(); p.draw(pCtx); });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // ── HERO PARALLAX ──
+    const heroName = document.getElementById('hero-name');
+    const heroCenter = document.getElementById('hero-center');
+    document.addEventListener('mousemove', (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 2;
+      const y = (e.clientY / window.innerHeight - 0.5) * 2;
+      const rotY = x * 3;
+      const rotX = y * -1.5;
+      heroName.style.transform = `rotateY(${rotY}deg) rotateX(${rotX}deg) translateZ(10px)`;
+    });
+
+    // ── 3D TILT ON CARDS ──
+    const tiltCards = document.querySelectorAll('.tilt-card');
+    tiltCards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        const rotY = x * 8;
+        const rotX = y * -8;
+        card.style.transform = `perspective(800px) rotateY(${rotY}deg) rotateX(${rotX}deg)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg)';
+      });
+    });
+
     // ── LIGHTBOX ──
     const clickables = Array.from(document.querySelectorAll('.clickable-img'));
     const lightbox   = document.getElementById('lightbox');
@@ -1429,7 +1680,7 @@ Our roots entwined with hers, unyielding, condemned.</div>
     const lbNext     = document.getElementById('lightbox-next');
     let current = 0;
 
-    function open(i) {
+    function openLightbox(i) {
       current = i;
       const el = clickables[i];
       lbImg.src = el.dataset.src;
@@ -1437,31 +1688,31 @@ Our roots entwined with hers, unyielding, condemned.</div>
       lightbox.classList.add('active');
       document.body.classList.add('overlay-open');
     }
-    function close() {
+    function closeLightbox() {
       lightbox.classList.remove('active');
       document.body.classList.remove('overlay-open');
       setTimeout(() => { lbImg.src = ''; }, 350);
     }
-    clickables.forEach((el, i) => el.addEventListener('click', () => open(i)));
-    lbClose.addEventListener('click', close);
-    lbBackdrop.addEventListener('click', close);
-    lbPrev.addEventListener('click', () => open((current - 1 + clickables.length) % clickables.length));
-    lbNext.addEventListener('click', () => open((current + 1) % clickables.length));
+    clickables.forEach((el, i) => el.addEventListener('click', () => openLightbox(i)));
+    lbClose.addEventListener('click', closeLightbox);
+    lbBackdrop.addEventListener('click', closeLightbox);
+    lbPrev.addEventListener('click', () => openLightbox((current - 1 + clickables.length) % clickables.length));
+    lbNext.addEventListener('click', () => openLightbox((current + 1) % clickables.length));
     document.addEventListener('keydown', e => {
       if (!lightbox.classList.contains('active')) return;
-      if (e.key === 'Escape')     close();
-      if (e.key === 'ArrowLeft')  open((current - 1 + clickables.length) % clickables.length);
-      if (e.key === 'ArrowRight') open((current + 1) % clickables.length);
+      if (e.key === 'Escape')     closeLightbox();
+      if (e.key === 'ArrowLeft')  openLightbox((current - 1 + clickables.length) % clickables.length);
+      if (e.key === 'ArrowRight') openLightbox((current + 1) % clickables.length);
     });
 
-    // ── EASTER EGG (7 clicks on footer "Ritual") ──
+    // ── EASTER EGG ──
     const easterEggLink = document.getElementById('easter-egg-link');
     let ritualClickCount = 0;
     easterEggLink.addEventListener('click', (e) => {
       e.preventDefault();
       ritualClickCount++;
       if (ritualClickCount >= 7) {
-        window.location.href = 'easteregg.html';  // or "Easteregg.html" if your file is capitalized
+        window.location.href = 'easteregg.html';
       }
     });
 
@@ -1616,7 +1867,7 @@ Our roots entwined with hers, unyielding, condemned.</div>
       }
     }
 
-    // ── CARD OVERLAY (hover + click) ──
+    // ── CARD OVERLAY ──
     const cardOverlay = document.getElementById('card-overlay');
     const cardInterest = document.getElementById('card-interest');
     const cardCloseBtn = document.getElementById('card-close-btn');
@@ -1642,7 +1893,6 @@ Our roots entwined with hers, unyielding, condemned.</div>
       }
     });
 
-    // Hover flips temporarily unless permanently flipped
     cardScene.addEventListener('mouseenter', () => {
       if (!cardScene.classList.contains('flipped')) {
         cardScene.classList.add('hover-flipped');
@@ -1651,8 +1901,6 @@ Our roots entwined with hers, unyielding, condemned.</div>
     cardScene.addEventListener('mouseleave', () => {
       cardScene.classList.remove('hover-flipped');
     });
-
-    // Click toggles permanent flip
     cardScene.addEventListener('click', () => {
       cardScene.classList.toggle('flipped');
       if (cardScene.classList.contains('flipped')) {
