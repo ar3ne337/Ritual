@@ -681,11 +681,19 @@
             padding: 2.2rem 1.8rem;
             background: var(--bg2);
             transition: background 0.4s ease, transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: default;
+            cursor: pointer;
             position: relative;
             display: flex;
             flex-direction: column;
             gap: 0.7rem;
+            text-align: left;
+            font-family: inherit;
+            color: inherit;
+            border-radius: 0;
+            appearance: none;
+            -webkit-appearance: none;
+            outline: none;
+            width: 100%;
         }
         .ritual-card:nth-child(4n) {
             border-right: none;
@@ -1206,9 +1214,10 @@
         }
 
         footer {
-            display: grid;
-            grid-template-columns: 1fr auto;
+            display: flex;
+            justify-content: flex-start;
             align-items: center;
+            flex-wrap: wrap;
             padding: 1.8rem 3rem;
             border-top: 1px solid var(--border);
             gap: 2rem;
@@ -1261,12 +1270,14 @@
             font-size: 0.5rem;
             color: var(--gray);
             letter-spacing: 0.1em;
-            text-align: right;
+            text-align: left;
+            white-space: nowrap;
         }
         @media (max-width: 860px) {
             footer {
-                grid-template-columns: 1fr;
                 padding: 1.5rem;
+                flex-direction: column;
+                align-items: flex-start;
                 gap: 1rem;
             }
             .footer-left {
@@ -2234,7 +2245,7 @@
         </a>
         <ul class="nav-links">
             <li><a href="#about">About</a></li>
-            <li><a href="#rituals">Rituals</a></li>
+            <li><a href="#rituals">Links</a></li>
             <li><a href="#gallery">Gallery</a></li>
             <li><a href="#whispers">Whispers</a></li>
             <li><a href="#thoughts">Thoughts</a></li>
@@ -2250,7 +2261,7 @@
     <div class="mobile-menu" id="mobile-menu">
         <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Close menu"><i class="fas fa-times"></i></button>
         <a href="#about">About</a>
-        <a href="#rituals">Rituals</a>
+        <a href="#rituals">Links</a>
         <a href="#gallery">Gallery</a>
         <a href="#whispers">Whispers</a>
         <a href="#thoughts">Thoughts</a>
@@ -2280,63 +2291,62 @@
         </section>
 
         <section id="rituals" class="section reveal">
-            <div class="section-label">Daily Rituals</div>
+            <div class="section-label">Links / Projects</div>
             <div class="rituals-grid">
-                <div class="ritual-card">
-                    <div class="ritual-time">05:30</div>
-                    <div class="ritual-name">The Quiet Hour</div>
-                    <div class="ritual-desc">Before the world wakes. Coffee, silence, a notebook. Nothing urgent exists yet.</div>
-                    <div class="ritual-icon">✦</div>
-                </div>
-                <div class="ritual-card">
-                    <div class="ritual-time">07:00</div>
-                    <div class="ritual-name">First Light</div>
-                    <div class="ritual-desc">Golden hour through the window. If the light is right, I grab the camera.</div>
-                    <div class="ritual-icon">☀</div>
-                </div>
-                <div class="ritual-card">
-                    <div class="ritual-time">12:00</div>
-                    <div class="ritual-name">Midday Reset</div>
-                    <div class="ritual-desc">Step away from screens. A walk, a stretch, a moment to remember I have a body.</div>
-                    <div class="ritual-icon">↺</div>
-                </div>
-                <div class="ritual-card">
-                    <div class="ritual-time">15:00</div>
-                    <div class="ritual-name">The Slump Hour</div>
-                    <div class="ritual-desc">Second coffee. Sometimes third. Staring at something unfinished until it clicks.</div>
-                    <div class="ritual-icon">☕</div>
-                </div>
-                <div class="ritual-card">
-                    <div class="ritual-time">19:00</div>
-                    <div class="ritual-name">Golden Exit</div>
-                    <div class="ritual-desc">If the sky cooperates, I'm outside. Camera in hand, chasing the last light.</div>
-                    <div class="ritual-icon">☽</div>
-                </div>
-                <div class="ritual-card">
-                    <div class="ritual-time">22:00</div>
-                    <div class="ritual-name">The Good Hours</div>
-                    <div class="ritual-desc">Night falls. The real work begins — editing, building, thinking without interruption.</div>
-                    <div class="ritual-icon">◈</div>
-                </div>
-                <div class="ritual-card">
-                    <div class="ritual-time">00:00</div>
-                    <div class="ritual-name">Midnight Inventory</div>
-                    <div class="ritual-desc">What got done? What didn't? A quiet check-in with myself before the day officially ends.</div>
-                    <div class="ritual-icon">◉</div>
-                </div>
-                <div class="ritual-card">
-                    <div class="ritual-time">02:00</div>
-                    <div class="ritual-name">The Last Note</div>
-                    <div class="ritual-desc">One final thought written down. The phone goes face-down. The room goes dark.</div>
-                    <div class="ritual-icon">✧</div>
-                </div>
+                <button class="ritual-card" type="button">
+                    <span class="ritual-time">05:30</span>
+                    <span class="ritual-name">The Quiet Hour</span>
+                    <span class="ritual-desc">Before the world wakes. Coffee, silence, a notebook. Nothing urgent exists yet.</span>
+                    <span class="ritual-icon">✦</span>
+                </button>
+                <button class="ritual-card" type="button">
+                    <span class="ritual-time">07:00</span>
+                    <span class="ritual-name">First Light</span>
+                    <span class="ritual-desc">Golden hour through the window. If the light is right, I grab the camera.</span>
+                    <span class="ritual-icon">☀</span>
+                </button>
+                <button class="ritual-card" type="button">
+                    <span class="ritual-time">12:00</span>
+                    <span class="ritual-name">Midday Reset</span>
+                    <span class="ritual-desc">Step away from screens. A walk, a stretch, a moment to remember I have a body.</span>
+                    <span class="ritual-icon">↺</span>
+                </button>
+                <button class="ritual-card" type="button">
+                    <span class="ritual-time">15:00</span>
+                    <span class="ritual-name">The Slump Hour</span>
+                    <span class="ritual-desc">Second coffee. Sometimes third. Staring at something unfinished until it clicks.</span>
+                    <span class="ritual-icon">☕</span>
+                </button>
+                <button class="ritual-card" type="button">
+                    <span class="ritual-time">19:00</span>
+                    <span class="ritual-name">Golden Exit</span>
+                    <span class="ritual-desc">If the sky cooperates, I'm outside. Camera in hand, chasing the last light.</span>
+                    <span class="ritual-icon">☽</span>
+                </button>
+                <button class="ritual-card" type="button">
+                    <span class="ritual-time">22:00</span>
+                    <span class="ritual-name">The Good Hours</span>
+                    <span class="ritual-desc">Night falls. The real work begins — editing, building, thinking without interruption.</span>
+                    <span class="ritual-icon">◈</span>
+                </button>
+                <button class="ritual-card" type="button">
+                    <span class="ritual-time">00:00</span>
+                    <span class="ritual-name">Midnight Inventory</span>
+                    <span class="ritual-desc">What got done? What didn't? A quiet check-in with myself before the day officially ends.</span>
+                    <span class="ritual-icon">◉</span>
+                </button>
+                <button class="ritual-card" type="button">
+                    <span class="ritual-time">02:00</span>
+                    <span class="ritual-name">The Last Note</span>
+                    <span class="ritual-desc">One final thought written down. The phone goes face-down. The room goes dark.</span>
+                    <span class="ritual-icon">✧</span>
+                </button>
             </div>
         </section>
 
         <section id="gallery" class="section reveal">
             <div class="section-label">Gallery — Things I've Seen & Shot</div>
             <div class="gallery-masonry">
-                <!-- 10 images filling the 6-column grid without gaps -->
                 <div class="gallery-item span3 tall clickable-img" data-src="https://picsum.photos/seed/ritual-g1/1600/1100" data-caption="01 — Urban geometry at dusk">
                     <div class="item-num">01</div>
                     <img src="https://picsum.photos/seed/ritual-g1/900/700" alt="Urban geometry" loading="lazy" />
